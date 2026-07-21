@@ -7,6 +7,7 @@ import cors from "cors"
 import {connectToDB} from "./components/database/MongoBD.js"
 import userRoutes from "../Backend/components/routes/user.route.js"
 import cookieParser from "cookie-parser"
+import captainRoutes from "./components/routes/captain.routes.js"
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.get("/", (req,res)=>{
 })
 
 app.use("/users",userRoutes);
+app.use("/captain",captainRoutes);
 
 connectToDB();
 
