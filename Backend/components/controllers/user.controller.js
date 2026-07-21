@@ -3,6 +3,8 @@ import {createUser, verifyUser} from "../services/user.service.js"
 import {validationResult} from "express-validator"
 import {ApiResponse, ApiError} from "../utilities/response.utility.js"
 import {authUser} from "../middlewares/auth.middleware.js"
+import {setCookieOptions} from "../config/cookie.config.js"
+import BlacklistedTokens from "../models/blacklistToken.model.js"
 
 export const registerUser = async (req,res,next) => {
     const errors = validationResult(req);
@@ -25,8 +27,8 @@ export const registerUser = async (req,res,next) => {
 
     const token = await user.generateAuthToken();
 
-    return res.status(201).json(
-        new ApiResponse(200, "User registered successfully", {token, user})
+    return res.status(201).cookie("token", token, setCookieOptions).json(
+        new ApiResponse(200, "User registered successfully", user)
     )
 }
 
@@ -41,16 +43,23 @@ export const loginUser = async (req,res,next) => {
 
      const token = await user.generateAuthToken();
      
-     return res.status(201).json(
-        new ApiResponse(200, "User logged in successfully", {token, user})
+     return res.status(201).cookie("token",token,setCookieOptions).json(
+        new ApiResponse(200, "User logged in successfully", user)
      )
 
 }
 
 export const logoutUser = async (req,res,next) => {
-       
+      res.clearCookie("token",setCookieOptions);
+      const token = req.cookies?.token || req.headers.authorization?.split(" ")[1]; 
+      await BlacklistedTokens.create({token}) 
+      return res.status(201).json(
+        new ApiResponse(200, "User logout successfully")
+      )
 }
 
 export const getUserProfile = async(req,res,next) => {
-      console.log(req.user);       
+      return res.status(201).json(
+        new ApiResponse(200,"User data fetched successfully", req.user)
+      )       
 }
