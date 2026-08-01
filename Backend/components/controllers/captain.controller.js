@@ -1,32 +1,55 @@
-import Captain from "../models/captain.model.js";
-import {createCaptain} from "../services/captain.service.js";
-import {validationResult} from "express-validator";
-import {ApiError,ApiResponse} from "../utilities/response.utility.js"
-import {setCookieOptions} from "../config/cookie.config.js"
+import Captain from '../models/captain.model.js';
+import { createCaptain } from '../services/captain.service.js';
+import { validationResult } from 'express-validator';
+import { ApiError, ApiResponse } from '../utilities/response.utility.js';
+import { setCookieOptions } from '../config/cookie.config.js';
+import { verifyCaptain } from '../services/captain.service.js';
 
-export const registerCaptain = async (req,res,next) => {
-    console.log(req.body)
-     const errors = validationResult(req);
-     if(!errors.isEmpty()){
-        throw new ApiError(401, "captain register validation error", errors)
-     }
-     
-     const {fullname, email, password, vehicle} = req.body;
+export const registerCaptain = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        throw new ApiError(401, 'captain register validation error', errors);
+    }
 
-     const captain = await createCaptain({
-        firstname:fullname.firstname,
+    const { fullname, email, password, vehicle } = req.body;
+
+    const isCaptainAlreadyExists = await Captain.findOne({ email });
+    if (isCaptainAlreadyExists) {
+        throw new ApiError(409, 'Captain already exists');
+    }
+
+    const captain = await createCaptain({
+        firstname: fullname.firstname,
         lastname: fullname.lastname,
         email,
         password,
-        color:vehicle.color,
-        plate:vehicle.plate, 
-        capacity:vehicle.capacity,
-        vehicleType:vehicle.vehicleType      
-     })
+        color: vehicle.color,
+        plate: vehicle.plate,
+        capacity: vehicle.capacity,
+        vehicleType: vehicle.vehicleType,
+    });
 
-     const token = await captain.generateAuthToken();
+    const token = await captain.generateAuthToken();
 
-     res.status(201).cookie("token", token, setCookieOptions).json(
-        new ApiResponse(200,"Captain registered successfully", captain)
-     )
-}
+    res.status(201)
+        .cookie('token', token, setCookieOptions)
+        .json(new ApiResponse(200, 'Captain registered successfully', captain));
+};
+
+export const loginCaptain = async (req, res, next) => {
+    const errors = validationResult(req);
+    console.log(errors);
+    if (!errors.isEmpty()) {
+        throw new ApiError(401, 'validation errors', errors);
+    }
+
+    const { email, password } = req.body;
+   
+    const captain = await verifyCaptain({email, password});
+
+    const token = await captain.generateAuthToken();
+
+    return res.status(201).cookie("token", token, setCookieOptions).json(
+        new ApiResponse(200, "captain logged in successfully", captain)
+    )
+};

@@ -61,6 +61,8 @@ This endpoint creates a new user record in the database. On success, it sets a J
 ### Error Responses
 - Status Code: `400 Bad Request`
   - Returned when validation fails or required fields are missing
+- Status Code: `409 Conflict`
+  - Returned when a user with the same email already exists
 
 ### Example Success Response
 ```json
@@ -141,6 +143,109 @@ This endpoint verifies the provided credentials. On success, it sets a JWT in th
       "lastname": "doe"
     },
     "email": "john@example.com"
+  }
+}
+```
+
+---
+
+## POST /captain/register
+
+Registers a new captain account and creates an authentication session.
+
+### Description
+This endpoint creates a new captain record in the database. On success, it sets a JWT in an HTTP-only cookie named `token` and returns the created captain in the response body.
+
+### Request Method
+- Method: `POST`
+- URL: `/captain/register`
+
+### Required Request Body
+```json
+{
+  "fullname": {
+    "firstname": "John",
+    "lastname": "Doe"
+  },
+  "email": "captain@example.com",
+  "password": "password123",
+  "vehicle": {
+    "color": "Black",
+    "plate": "ABC123",
+    "capacity": 4,
+    "vehicleType": "car"
+  }
+}
+```
+
+### Field Requirements
+- `fullname.firstname` (required)
+  - Type: string
+  - Minimum length: 3 characters
+- `fullname.lastname` (optional)
+  - Type: string
+- `email` (required)
+  - Type: string
+  - Must be a valid email address
+- `password` (required)
+  - Type: string
+  - Minimum length: 6 characters
+- `vehicle.color` (required)
+  - Type: string
+  - Minimum length: 3 characters
+- `vehicle.plate` (required)
+  - Type: string
+  - Minimum length: 3 characters
+- `vehicle.capacity` (required)
+  - Type: number
+  - Minimum value: 1
+- `vehicle.vehicleType` (required)
+  - Type: string
+  - Allowed values: `motorcycle`, `car`, `auto`
+
+### Validation Rules
+- `email` must be a valid email
+- `fullname.firstname` must be at least 3 characters long
+- `password` must be at least 6 characters long
+- `vehicle.color` must be at least 3 characters long
+- `vehicle.plate` must be at least 3 characters long
+- `vehicle.capacity` must be an integer greater than or equal to 1
+- `vehicle.vehicleType` must be one of `motorcycle`, `car`, or `auto`
+
+### Success Response
+- Status Code: `201 Created`
+- Response body:
+  - `message`: `Captain registered successfully`
+  - `data`: created captain information
+- Cookie:
+  - `token`: JWT stored in an HTTP-only cookie
+
+### Error Responses
+- Status Code: `401 Unauthorized`
+  - Returned when validation fails
+- Status Code: `409 Conflict`
+  - Returned when a captain with the same email already exists
+
+### Example Success Response
+```json
+{
+  "statusCode": 200,
+  "success": true,
+  "message": "Captain registered successfully",
+  "data": {
+    "_id": "<captain-id>",
+    "fullname": {
+      "firstname": "john",
+      "lastname": "doe"
+    },
+    "email": "captain@example.com",
+    "vehicle": {
+      "color": "black",
+      "plate": "abc123",
+      "capacity": 4,
+      "vehicleType": "car"
+    },
+    "status": "inactive"
   }
 }
 ```

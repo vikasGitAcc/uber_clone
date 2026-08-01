@@ -1,26 +1,49 @@
-import {User} from "../models/user.model.js"
-import jwt from "jsonwebtoken"
-import {ApiError} from "../utilities/response.utility.js"
-import BlacklistedTokens from "../models/blacklistToken.model.js"
+import { User } from '../models/user.model.js';
+import jwt from 'jsonwebtoken';
+import { ApiError } from '../utilities/response.utility.js';
+import BlacklistedTokens from '../models/blacklistToken.model.js';
 
-export const authUser = async(req,res,next) => {
-     const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
-     if(!token){
-         throw new ApiError("Unauthorized access or token not found at user authentication");
-     }
-     
-     const isBlacklisted = await BlacklistedTokens.findOne({token});
-     if(isBlacklisted){
-        throw new ApiError(401, "blacklisted token");
-     } 
+export const authUser = async (req, res, next) => {
+    const token =
+        req.cookies?.token || req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        throw new ApiError(
+            'Unauthorized access or token not found at user authentication'
+        );
+    }
 
-     try{
+    const isBlacklisted = await BlacklistedTokens.findOne({ token });
+    if (isBlacklisted) {
+        throw new ApiError(401, 'blacklisted token');
+    }
+
+    try {
         const user = await jwt.verify(token, process.env.JWT_SECRET);
         req.user = user;
-        console.log(user)
+        console.log(user);
         return next();
+    } catch (err) {
+        throw new ApiError(401, 'Unauthorized access!');
+    }
+};
 
-     }catch(err){
-        throw new ApiError(401, "Unauthorized access!");
-     }
-}
+const authCaptain = async (req, res, next) => {
+    const token =
+        req.cookies?.token || req.headers?.autorization?.split(' ')[1];
+    if (!token) {
+        throw new ApiError(401, 'Unauthorized access!');
+    }
+
+    const isBlacklistedToken = await BlacklistedTokens.findOne({ token });
+    if (isBlacklistedToken) {
+        throw new ApiError(400, 'blacklisted token, unauthorized access!');
+    }
+
+    try {
+        const captain = await jwt.verify(token, process.env.CAPTAIN_JWT_SECRET);
+        req.captain = captain;
+        return next();
+    } catch (err) {
+        throw new ApiError(401, 'Unauthorized access!');
+    }
+};

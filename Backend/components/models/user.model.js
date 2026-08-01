@@ -1,51 +1,56 @@
-import mongoose from "mongoose";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
-const userSchema = new mongoose.Schema({
-    fullname:{
-        firstname:{
+const userSchema = new mongoose.Schema(
+    {
+        fullname: {
+            firstname: {
+                type: String,
+                required: true,
+                lowercase: true,
+                trim: true,
+                minLength: [3, 'First name should be of at least 3 characters'],
+            },
+            lastname: {
+                type: String,
+                lowercase: true,
+                trim: true,
+                minLength: [3, 'First name should be of at least 3 characters'],
+            },
+        },
+        password: {
             type: String,
             required: true,
-            lowercase: true,
-            trim: true,
-            minLength: [3, "First name should be of at least 3 characters"]
+            select: false,
         },
-        lastname:{
+        email: {
             type: String,
+            required: true,
+            unique: true,
             lowercase: true,
             trim: true,
-            minLength: [3, "First name should be of at least 3 characters"]
-        }
+            match: [
+                /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/,
+                'invalid email!',
+            ],
+        },
+        socketId: {
+            type: String,
+        },
     },
-    password:{
-        type: String,
-        required: true,
-        select: false
-    },
-    email:{
-       type: String,
-       required: true, 
-       unique: true,
-       lowercase: true,
-       trim: true      
-    },
-    socketId:{
-       type: String 
-    }
-},{timestamps: true})
+    { timestamps: true }
+);
 
-userSchema.methods.comparePassword = async function(password){
+userSchema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password);
-}
+};
 
-userSchema.methods.generateAuthToken = async function(){
-    return await jwt.sign(
-        {_id:this._id},
-        process.env.JWT_SECRET,
-        {expiresIn: process.env.JWT_EXPIRES}
-    ) 
-}
+userSchema.methods.generateAuthToken = async function () {
+    return await jwt.sign({ _id: this._id }, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRES,
+    });
+};
 
 // userSchema.pre("save", async function(next){
 //     if(!this.isModified("password")) return next();
@@ -53,10 +58,10 @@ userSchema.methods.generateAuthToken = async function(){
 //     return next();
 // })
 
-userSchema.statics.hashPassword = async function(password){
+userSchema.statics.hashPassword = async function (password) {
     return await bcrypt.hash(password, 10);
-}
+};
 
-const User = mongoose.model("User", userSchema)
+const User = mongoose.model('User', userSchema);
 
-export {User};
+export { User };
