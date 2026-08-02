@@ -2,6 +2,10 @@ import express from 'express';
 import { registerCaptain, loginCaptain } from '../controllers/captain.controller.js';
 import { body } from 'express-validator';
 import asyncHandler from '../utilities/asyncHandler.utility.js';
+import { authUser } from '../middlewares/auth.middleware.js';
+import { logoutCaptain } from '../controllers/captain.controller.js';
+import { captainProfile } from '../controllers/captain.controller.js';
+
 
 const router = express.Router();
 
@@ -35,5 +39,8 @@ router.post("/login",[
     body("email").isEmail().withMessage("Invalid email!"),
     body("password").isLength({min:6}).withMessage("Password should be at least 6 characters long")
 ],asyncHandler(loginCaptain))
+
+router.post('/logout', authUser, asyncHandler(logoutCaptain));
+router.get("/profile", authUser, asyncHandler(captainProfile));
 
 export default router;

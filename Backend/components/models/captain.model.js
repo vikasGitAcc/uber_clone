@@ -80,8 +80,8 @@ const captainSchema = new mongoose.Schema({
 captainSchema.methods.generateAuthToken = async function () {
     const token = await jwt.sign(
         { _id: this._id },
-        process.env.CAPTAIN_JWT_SECRET,
-        { expiresIn: process.env.CAPTAIN_JWT_EXPIRES }
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES }
     );
 
     return token;

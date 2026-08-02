@@ -37,9 +37,20 @@ app.use((err, req, res, next) => {
     });
 });
 
-connectToDB();
 
-const port = process.env.PORT || 3000;
-server.listen(port, '0.0.0.0', (req, res) => {
-    console.log(`Server is listening on port: ${port}`);
+const start_server = async () => {
+    try{
+        await connectToDB();
+        const port = process.env.PORT || 3000;
+        server.listen(port, '0.0.0.0', (req, res) => {
+        console.log(`Server is listening on port: ${port}`);
 });
+
+    }catch(err){
+        console.error("Error starting server:", err);
+        process.exit(1); // Exit the process with an error code
+    }
+}
+
+start_server();
+

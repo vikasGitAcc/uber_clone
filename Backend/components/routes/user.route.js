@@ -9,6 +9,7 @@ import {
 import asyncHandler from '../utilities/asyncHandler.utility.js';
 import { authUser } from '../middlewares/auth.middleware.js';
 
+
 const router = express.Router();
 router.post(
     '/register',
@@ -36,6 +37,8 @@ router.post(
 );
 
 router.get('/profile', authUser, asyncHandler(getUserProfile));
-router.get('/logout', authUser, asyncHandler(logoutUser));
+router.post('/logout', authUser, asyncHandler(logoutUser));
+
+
 
 export default router;

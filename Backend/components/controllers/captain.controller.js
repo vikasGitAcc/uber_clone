@@ -4,6 +4,8 @@ import { validationResult } from 'express-validator';
 import { ApiError, ApiResponse } from '../utilities/response.utility.js';
 import { setCookieOptions } from '../config/cookie.config.js';
 import { verifyCaptain } from '../services/captain.service.js';
+import BlacklistedTokens from '../models/blacklistToken.model.js';
+import OpenAI from 'openai';
 
 export const registerCaptain = async (req, res, next) => {
     const errors = validationResult(req);
@@ -38,7 +40,6 @@ export const registerCaptain = async (req, res, next) => {
 
 export const loginCaptain = async (req, res, next) => {
     const errors = validationResult(req);
-    console.log(errors);
     if (!errors.isEmpty()) {
         throw new ApiError(401, 'validation errors', errors);
     }
@@ -53,3 +54,15 @@ export const loginCaptain = async (req, res, next) => {
         new ApiResponse(200, "captain logged in successfully", captain)
     )
 };
+
+export const logoutCaptain = async(req, res, next) => {
+    res.clearCookie("token", setCookieOptions);
+    await BlacklistedTokens.create({token: req.token});
+    return res.status(200).json(new ApiResponse(200, "captain logged out successfully"));
+}
+
+export const captainProfile = async(req, res, next) => {
+    const captain = req.user;
+    const captainData = await Captain.findById(captain._id);
+    return res.status(200).json(new ApiResponse(200, "captain profile fetched successfully", captainData));
+}
