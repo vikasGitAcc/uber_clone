@@ -4,7 +4,7 @@ import { body } from 'express-validator';
 import asyncHandler from '../utilities/asyncHandler.utility.js';
 import { authUser } from '../middlewares/auth.middleware.js';
 import { logoutCaptain } from '../controllers/captain.controller.js';
-import { captainProfile } from '../controllers/captain.controller.js';
+import { getCaptainProfile } from '../controllers/captain.controller.js';
 
 
 const router = express.Router();
@@ -41,6 +41,6 @@ router.post("/login",[
 ],asyncHandler(loginCaptain))
 
 router.post('/logout', authUser, asyncHandler(logoutCaptain));
-router.get("/profile", authUser, asyncHandler(captainProfile));
+router.get("/profile", authUser, asyncHandler(getCaptainProfile));
 
 export default router;

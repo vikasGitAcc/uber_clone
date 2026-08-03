@@ -61,7 +61,7 @@ export const logoutCaptain = async(req, res, next) => {
     return res.status(200).json(new ApiResponse(200, "captain logged out successfully"));
 }
 
-export const captainProfile = async(req, res, next) => {
+export const getCaptainProfile = async(req, res, next) => {
     const captain = req.user;
     const captainData = await Captain.findById(captain._id);
     return res.status(200).json(new ApiResponse(200, "captain profile fetched successfully", captainData));
