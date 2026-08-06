@@ -1,18 +1,24 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import {Routes, Route} from "react-router-dom";
+import Home from "./pages/Home.jsx";
+import UserLogin from "./pages/UserLogin.jsx";
+import UserSignup from "./pages/UserSignup.jsx";
+import CaptainLogin from "./pages/CaptainLogin.jsx";
+import CaptainSignup from "./pages/CaptainSignup.jsx";
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <>
-      <div>
-          <h1 className="text-center text-blue-500 text-4xl">Welcome</h1>
-      </div>
-    </>
+    <div>
+         <Routes>
+             <Route path="/" element={<Home />} />
+             <Route path="/login" element={<UserLogin />} />
+             <Route path="/signup" element={<UserSignup />} />
+             <Route path="/captain-login" element={<CaptainLogin />} />
+             <Route path="/captain-signup" element={<CaptainSignup />} />
+         </Routes>
+    </div>
   )
 }
 
